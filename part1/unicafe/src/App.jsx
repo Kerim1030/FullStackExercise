@@ -8,6 +8,23 @@ const Button = ({ handleClick, text }) => (
   </button>
 )
 
+const Statistics = ({ good, neutral, bad, all, average, positive }) => {
+  return (
+    <div>
+    <h2>statistics</h2>
+    <p>good {good}</p>
+    <p>neutral {neutral}</p>
+    <p>bad {bad}</p>
+    <p>all {all}</p>
+    <p>average {average}</p>
+    <p>positive {positive} %</p>
+    </div>
+  )
+    
+}
+
+
+
 
 
 const App = () => {
@@ -16,7 +33,7 @@ const App = () => {
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
   const [all, setAll] = useState(0)
-  
+
   const average = all === 0 ? 0 : (good - bad) / all
   const positive = all === 0 ? 0 : (good / all) * 100
 
@@ -39,16 +56,7 @@ const App = () => {
       <Button handleClick={handleGoodClick} text='good' />
       <Button handleClick={handleNeutralClick} text='neutral' />
       <Button handleClick={handleBadClick} text='bad' />
-
-      <h2>statistics</h2>
-
-      <p>good {good}</p>
-      <p>neutral {neutral}</p>
-      <p>bad {bad}</p>
-      <p>all {all}</p>
-      <p>average {average}</p>
-      <p>positive {positive} %</p>
-
+      <Statistics good={good} neutral={neutral} bad={bad} all={all} average={average} positive={positive} />
     </div>
   )
 }
