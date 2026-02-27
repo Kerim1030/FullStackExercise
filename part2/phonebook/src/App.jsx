@@ -4,12 +4,14 @@ import Filter from './components/Filter'
 import Persons from './components/Persons'
 import axios from 'axios'
 import personService from './services/persons'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [showFilter, setShowFilter] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
   
   const showAll = showFilter === '' ? persons : persons.filter(person => person.name.toLowerCase().includes(showFilter.toLowerCase()))
 
@@ -47,6 +49,10 @@ const App = () => {
       setPersons(persons.concat(response))
       setNewName('')
       setNewNumber('')
+      setErrorMessage(`Added ${newName}`)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
     })
 
   }
@@ -77,6 +83,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={errorMessage} />
       <Filter showFilter={showFilter} setShowFilter={setShowFilter} />
       <h3>Add a new</h3>
       <PersonForm addPerson={addPerson} newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber} />
