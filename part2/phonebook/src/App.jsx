@@ -33,6 +33,17 @@ const App = () => {
 
   }
 
+  const supprimerPerson = (id) => {
+    if (!window.confirm('Are you sure you want to delete this person?')) {
+      return
+    }
+    personService
+      .supprimer(id)
+      .then(response => {
+        setPersons(persons.filter(person => person.id !== id))
+      })
+  }
+
   
 
   useEffect(() => {
@@ -52,7 +63,7 @@ const App = () => {
       <h3>Add a new</h3>
       <PersonForm addPerson={addPerson} newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber} />
       <h3>Numbers</h3>
-      <Persons showAll={showAll} />
+      <Persons showAll={showAll} handleDelete={supprimerPerson} />
     </div>
   )
 }
