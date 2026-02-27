@@ -31,9 +31,10 @@ const App = () => {
           setNewNumber('')
         })
         .catch(error => {
-          alert(
-            `the note '${person.name}' was already removed from server.`
-          )
+          setErrorMessage(`Information of ${newName} has already been removed from server`)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
           setPersons(persons.filter(p => p.id !== person.id))
         })
       return
