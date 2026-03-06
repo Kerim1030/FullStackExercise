@@ -5,7 +5,9 @@ import Filter from './components/Filter'
 
 const App = () => {
   const [countries, setCountries] = useState([])
-  const [searchQuery, setSearchQuery] = useState('')
+  const [rechercher, setRechercher] = useState('')
+
+  
 
   useEffect(() => {
     axios
@@ -19,18 +21,22 @@ const App = () => {
   }, [])
 
   const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value)
+    setRechercher(event.target.value)
+  }
+
+  const handleRegarder = (name) => {
+    setRechercher(name)
   }
 
 
-  const countriesToShow = countries.filter(country =>
-    country.name.common.toLowerCase().includes(searchQuery.toLowerCase())
+  const countriesAregarder = countries.filter(country =>
+    country.name.common.toLowerCase().includes(rechercher.toLowerCase())
   )
 
   return (
     <div>
-      <Filter searchQuery={searchQuery} handleSearchChange={handleSearchChange} />
-      {searchQuery && <Countries countriesToShow={countriesToShow} />}
+      <Filter rechercher={rechercher} handleSearchChange={handleSearchChange} />
+      {rechercher && <Countries countriesAregarder={countriesAregarder} handleRegarder = {handleRegarder} />}
     </div>
   )
 }

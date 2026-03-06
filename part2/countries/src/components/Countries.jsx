@@ -1,20 +1,25 @@
 import OneCountry from "./OneCountry"
 
-const Countries = ({ countriesToShow }) => {
-  if (countriesToShow.length > 10) {
+const Countries = ({ countriesAregarder, handleRegarder }) => {
+  if (countriesAregarder.length > 10) {
     return <p>Too many matches, specify another filter</p>
   }
-  if (countriesToShow.length > 1 && countriesToShow.length <= 10) {
+  if (countriesAregarder.length > 1 && countriesAregarder.length <= 10) {
       return (
         <ul>
-          {countriesToShow.map(country => (
-            <li key={country.name.common}>{country.name.common}</li>
+          {countriesAregarder.map(country => (
+            <li key={country.name.common}>
+              {country.name.common}
+              <button onClick={()=>handleRegarder(country.name.common)}>
+                show
+              </button>
+            </li>
           ))}
         </ul>
       )
     }
-    if (countriesToShow.length === 1) {
-    return <OneCountry country={countriesToShow[0]} />
+    if (countriesAregarder.length === 1) {
+    return <OneCountry country={countriesAregarder[0]} />
   }
 
   return <p>No matches found</p>

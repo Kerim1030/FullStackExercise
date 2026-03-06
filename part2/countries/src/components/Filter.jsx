@@ -1,7 +1,7 @@
-const Filter = ({ searchQuery, handleSearchChange }) => {
+const Filter = ({ rechercher, handleSearchChange }) => {
   return (
     <div>
-        find countries <input value={searchQuery} onChange={handleSearchChange} />
+        find countries <input value={rechercher} onChange={handleSearchChange} />
       </div>
   )
 }
