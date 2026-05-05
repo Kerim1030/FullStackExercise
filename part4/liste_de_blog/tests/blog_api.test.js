@@ -1,28 +1,33 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcryptjs')
 const app = require('../app')
 const Blog = require('../models/bloges')
+const User = require('../models/user')
 
 const api = supertest(app)
 
-const initialBlogs = [
-  {
-    title: 'React patterns',
-    author: 'Michael Chan',
-    url: 'https://reactpatterns.com/',
-    likes: 7
-  },
-  {
-    title: 'Go To Statement Considered Harmful',
-    author: 'Edsger W. Dijkstra',
-    url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
-    likes: 5
-  }
-]
+let jeton
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  await Blog.insertMany(initialBlogs)
+  await User.deleteMany({})
+
+  const motDePasseHache = await bcrypt.hash('motdepasse', 10)
+  const utilisateur = new User({ username: 'kerim', name: 'Kerim', passwordHash: motDePasseHache })
+  await utilisateur.save()
+
+  const reponseLogin = await api
+    .post('/api/login')
+    .send({ username: 'kerim', password: 'motdepasse' })
+
+  jeton = reponseLogin.body.token
+
+  const utilisateurSauvegarde = await User.findOne({ username: 'kerim' })
+  await Blog.insertMany([
+    { title: 'React patterns', author: 'Michael Chan', url: 'https://reactpatterns.com/', likes: 7, user: utilisateurSauvegarde._id },
+    { title: 'Go To Statement Considered Harmful', author: 'Edsger W. Dijkstra', url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf', likes: 5, user: utilisateurSauvegarde._id }
+  ])
 })
 
 describe('GET /api/blogs', () => {
@@ -34,15 +39,15 @@ describe('GET /api/blogs', () => {
   })
 
   test('le bon nombre de blogs est retourné', async () => {
-    const response = await api.get('/api/blogs')
-    expect(response.body).toHaveLength(initialBlogs.length)
+    const reponse = await api.get('/api/blogs')
+    expect(reponse.body).toHaveLength(2)
   })
 })
 
 describe('format des blogs', () => {
   test('la propriété id existe et pas _id', async () => {
-    const response = await api.get('/api/blogs')
-    const blog = response.body[0]
+    const reponse = await api.get('/api/blogs')
+    const blog = reponse.body[0]
     expect(blog.id).toBeDefined()
     expect(blog._id).toBeUndefined()
   })
@@ -50,7 +55,7 @@ describe('format des blogs', () => {
 
 describe('POST /api/blogs', () => {
   test('un nouveau blog est bien ajouté', async () => {
-    const newBlog = {
+    const nouveauBlog = {
       title: 'Canonical string reduction',
       author: 'Edsger W. Dijkstra',
       url: 'https://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
@@ -59,49 +64,73 @@ describe('POST /api/blogs', () => {
 
     await api
       .post('/api/blogs')
-      .send(newBlog)
+      .set('Authorization', `Bearer ${jeton}`)
+      .send(nouveauBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const response = await api.get('/api/blogs')
-    expect(response.body).toHaveLength(initialBlogs.length + 1)
-    const titles = response.body.map(b => b.title)
-    expect(titles).toContain('Canonical string reduction')
+    const reponse = await api.get('/api/blogs')
+    expect(reponse.body).toHaveLength(3)
+    const titres = reponse.body.map(b => b.title)
+    expect(titres).toContain('Canonical string reduction')
   })
 
   test('likes vaut 0 par défaut si non fourni', async () => {
-    const newBlog = {
+    const nouveauBlog = {
       title: 'First class tests',
       author: 'Robert C. Martin',
       url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html'
     }
 
-    const response = await api
+    const reponse = await api
       .post('/api/blogs')
-      .send(newBlog)
+      .set('Authorization', `Bearer ${jeton}`)
+      .send(nouveauBlog)
       .expect(201)
 
-    expect(response.body.likes).toBe(0)
+    expect(reponse.body.likes).toBe(0)
   })
 
   test('400 si title manquant', async () => {
-    const newBlog = {
+    const nouveauBlog = {
       author: 'Robert C. Martin',
       url: 'http://blog.cleancoder.com',
       likes: 3
     }
 
-    await api.post('/api/blogs').send(newBlog).expect(400)
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${jeton}`)
+      .send(nouveauBlog)
+      .expect(400)
   })
 
   test('400 si url manquante', async () => {
-    const newBlog = {
+    const nouveauBlog = {
       title: 'TDD harms architecture',
       author: 'Robert C. Martin',
       likes: 0
     }
 
-    await api.post('/api/blogs').send(newBlog).expect(400)
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${jeton}`)
+      .send(nouveauBlog)
+      .expect(400)
+  })
+
+  test('401 si token manquant', async () => {
+    const nouveauBlog = {
+      title: 'Type wars',
+      author: 'Robert C. Martin',
+      url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
+      likes: 2
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(nouveauBlog)
+      .expect(401)
   })
 })
 
@@ -112,24 +141,25 @@ describe('DELETE /api/blogs/:id', () => {
 
     await api
       .delete(`/api/blogs/${blogASupprimer.id}`)
+      .set('Authorization', `Bearer ${jeton}`)
       .expect(204)
 
     const blogsApres = await api.get('/api/blogs')
-    expect(blogsApres.body).toHaveLength(initialBlogs.length - 1)
+    expect(blogsApres.body).toHaveLength(1)
   })
 })
 
 describe('PUT /api/blogs/:id', () => {
   test('les likes sont bien mis à jour', async () => {
-    const blogs = await api.get('/api/blogs')
-    const blogAModifier = blogs.body[0]
+    const reponse = await api.get('/api/blogs')
+    const blogAModifier = reponse.body[0]
 
-    const response = await api
+    const reponseModif = await api
       .put(`/api/blogs/${blogAModifier.id}`)
       .send({ likes: 99 })
       .expect(200)
 
-    expect(response.body.likes).toBe(99)
+    expect(reponseModif.body.likes).toBe(99)
   })
 })
 
