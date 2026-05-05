@@ -105,6 +105,34 @@ describe('POST /api/blogs', () => {
   })
 })
 
+describe('DELETE /api/blogs/:id', () => {
+  test('un blog est supprimé et le total diminue', async () => {
+    const blogsAvant = await api.get('/api/blogs')
+    const blogASupprimer = blogsAvant.body[0]
+
+    await api
+      .delete(`/api/blogs/${blogASupprimer.id}`)
+      .expect(204)
+
+    const blogsApres = await api.get('/api/blogs')
+    expect(blogsApres.body).toHaveLength(initialBlogs.length - 1)
+  })
+})
+
+describe('PUT /api/blogs/:id', () => {
+  test('les likes sont bien mis à jour', async () => {
+    const blogs = await api.get('/api/blogs')
+    const blogAModifier = blogs.body[0]
+
+    const response = await api
+      .put(`/api/blogs/${blogAModifier.id}`)
+      .send({ likes: 99 })
+      .expect(200)
+
+    expect(response.body.likes).toBe(99)
+  })
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
