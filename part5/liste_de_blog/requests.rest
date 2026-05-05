@@ -1,0 +1,13 @@
+### Récupérer tous les blogs
+GET http://localhost:3001/api/blogs
+
+### Ajouter un blog
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Mon premier blog",
+  "author": "Kerim",
+  "url": "https://example.com",
+  "likes": 5
+}
