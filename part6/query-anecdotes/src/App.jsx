@@ -1,8 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getTous, creer, mettreAJour } from './requests'
+import { useAfficherNotification } from './NotificationContext'
+import Notification from './components/Notification'
 
 const App = () => {
   const queryClient = useQueryClient()
+  const afficherNotification = useAfficherNotification()
 
   const resultat = useQuery({
     queryKey: ['anecdotes'],
@@ -12,15 +15,20 @@ const App = () => {
 
   const nouvelleMutation = useMutation({
     mutationFn: creer,
-    onSuccess: () => {
+    onSuccess: (nouvelle) => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+      afficherNotification(`nouvelle anecdote ajoutée : "${nouvelle.content}"`)
+    },
+    onError: () => {
+      afficherNotification("erreur : l'anecdote doit faire au moins 5 caractères")
     }
   })
 
   const voteMutation = useMutation({
     mutationFn: mettreAJour,
-    onSuccess: () => {
+    onSuccess: (anecdote) => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+      afficherNotification(`vous avez voté pour "${anecdote.content}"`)
     }
   })
 
@@ -48,6 +56,7 @@ const App = () => {
   return (
     <div>
       <h2>Anecdotes</h2>
+      <Notification />
       {anecdotes.map(anecdote => (
         <div key={anecdote.id}>
           <div>{anecdote.content}</div>
