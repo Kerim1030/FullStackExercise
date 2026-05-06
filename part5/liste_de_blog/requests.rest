@@ -11,3 +11,13 @@ Content-Type: application/json
   "url": "https://example.com",
   "likes": 5
 }
+
+### Ajouter un utilisateur
+POST http://localhost:3001/api/users
+Content-Type: application/json
+
+{
+  "username": "kerim2",
+  "name": "Kerim",
+  "password": "motdepasse123"
+}
