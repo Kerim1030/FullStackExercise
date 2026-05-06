@@ -29,5 +29,19 @@ export default [
         { allowConstantExport: true }
       ]
     }
+  },
+  {
+    files: ['**/*.test.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        describe: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterAll: 'readonly',
+        vi: 'readonly'
+      }
+    }
   }
 ]

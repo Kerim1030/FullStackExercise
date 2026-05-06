@@ -38,16 +38,16 @@ const Blog = ({ blog, utilisateurConnecte, onLike, onSuppression }) => {
 
   return (
     <div style={blogStyle}>
-      <div>
+      <div className="blog-resume">
         {blog.title} {blog.author}
         <button onClick={() => setDetailsVisibles(!detailsVisibles)}>
           {detailsVisibles ? 'cacher' : 'voir'}
         </button>
       </div>
       {detailsVisibles && (
-        <div>
-          <div>{blog.url}</div>
-          <div>
+        <div className="blog-details">
+          <div className="blog-url">{blog.url}</div>
+          <div className="blog-likes">
             likes {blog.likes}
             <button onClick={handleLike}>like</button>
           </div>
