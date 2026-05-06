@@ -56,7 +56,13 @@ blogsRouter.delete('/:id', async (request, response) => {
 blogsRouter.put('/:id', async (request, response) => {
   const updated = await Blog.findByIdAndUpdate(
     request.params.id,
-    { likes: request.body.likes },
+    {
+      title: request.body.title,
+      author: request.body.author,
+      url: request.body.url,
+      likes: request.body.likes,
+      user: request.body.user
+    },
     { new: true }
   )
   response.json(updated)

@@ -4,15 +4,14 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
+import FormulaireBlog from './components/FormulaireBlog'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [utilisateur, setUtilisateur] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [titre, setTitre] = useState('')
-  const [auteur, setAuteur] = useState('')
-  const [url, setUrl] = useState('')
   const [message, setMessage] = useState(null)
   const [typeMessage, setTypeMessage] = useState(null)
 
@@ -46,7 +45,7 @@ const App = () => {
       setUtilisateur(u)
       setUsername('')
       setPassword('')
-    } catch (erreur) {
+    } catch (_erreur) {
       afficherNotification('identifiants incorrects', 'erreur')
     }
   }
@@ -57,19 +56,26 @@ const App = () => {
     setBlogs([])
   }
 
-  const handleAjoutBlog = async (e) => {
-    e.preventDefault()
+  const handleAjoutBlog = async (nouveauBlog) => {
     try {
-      const nouveauBlog = await blogService.creer({ title: titre, author: auteur, url })
-      setBlogs(blogs.concat(nouveauBlog))
-      afficherNotification(`nouveau blog ajouté : ${titre} par ${auteur}`, 'succes')
-      setTitre('')
-      setAuteur('')
-      setUrl('')
-    } catch (erreur) {
+      const blogCree = await blogService.creer(nouveauBlog)
+      const blogAvecUtilisateur = { ...blogCree, user: utilisateur }
+      setBlogs(blogs.concat(blogAvecUtilisateur))
+      afficherNotification(`nouveau blog ajouté : ${nouveauBlog.title} par ${nouveauBlog.author}`, 'succes')
+    } catch (_erreur) {
       afficherNotification("erreur lors de l'ajout du blog", 'erreur')
     }
   }
+
+  const handleLike = (blogMisAJour) => {
+    setBlogs(blogs.map(b => b.id === blogMisAJour.id ? { ...blogMisAJour, user: b.user } : b))
+  }
+
+  const handleSuppression = (id) => {
+    setBlogs(blogs.filter(b => b.id !== id))
+  }
+
+  const blogsTries = [...blogs].sort((a, b) => b.likes - a.likes)
 
   if (utilisateur === null) {
     return (
@@ -95,16 +101,18 @@ const App = () => {
       <Notification message={message} type={typeMessage} />
       <p>{utilisateur.name} connecté <button onClick={handleLogout}>se déconnecter</button></p>
 
-      <h3>ajouter un nouveau blog</h3>
-      <form onSubmit={handleAjoutBlog}>
-        <div>titre <input value={titre} onChange={e => setTitre(e.target.value)} /></div>
-        <div>auteur <input value={auteur} onChange={e => setAuteur(e.target.value)} /></div>
-        <div>url <input value={url} onChange={e => setUrl(e.target.value)} /></div>
-        <button type="submit">ajouter</button>
-      </form>
+      <Togglable boutonLabel="créer un nouveau blog">
+        <FormulaireBlog onAjout={handleAjoutBlog} />
+      </Togglable>
 
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+      {blogsTries.map(blog =>
+        <Blog
+          key={blog.id}
+          blog={blog}
+          utilisateurConnecte={utilisateur}
+          onLike={handleLike}
+          onSuppression={handleSuppression}
+        />
       )}
     </div>
   )

@@ -17,4 +17,14 @@ const creer = async (nouveauBlog) => {
   return reponse.data
 }
 
-export default { getTous, creer, setJeton }
+const mettreAJour = async (id, blogModifie) => {
+  const reponse = await axios.put(`/api/blogs/${id}`, blogModifie)
+  return reponse.data
+}
+
+const supprimer = async (id) => {
+  const config = { headers: { Authorization: jeton } }
+  await axios.delete(`/api/blogs/${id}`, config)
+}
+
+export default { getTous, creer, setJeton, mettreAJour, supprimer }
