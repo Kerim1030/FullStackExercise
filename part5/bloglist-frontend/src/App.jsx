@@ -68,7 +68,10 @@ const App = () => {
   }
 
   const handleLike = (blogMisAJour) => {
-    setBlogs(blogs.map(b => b.id === blogMisAJour.id ? { ...blogMisAJour, user: b.user } : b))
+    setBlogs(blogs
+      .map(b => b.id === blogMisAJour.id ? { ...blogMisAJour, user: b.user } : b)
+      .sort((a, b) => b.likes - a.likes)
+    )
   }
 
   const handleSuppression = (id) => {

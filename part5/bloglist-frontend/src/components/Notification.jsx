@@ -10,7 +10,7 @@ const Notification = ({ message, type }) => {
     background: '#f9f9f9'
   }
 
-  return <div style={style}>{message}</div>
+  return <div style={style} className="notification">{message}</div>
 }
 
 export default Notification

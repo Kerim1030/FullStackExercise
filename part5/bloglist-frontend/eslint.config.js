@@ -43,5 +43,19 @@ export default [
         vi: 'readonly'
       }
     }
+  },
+  {
+    files: ['cypress/**/*.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        cy: 'readonly',
+        Cypress: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        beforeEach: 'readonly',
+        before: 'readonly'
+      }
+    }
   }
 ]

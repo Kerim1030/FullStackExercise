@@ -37,7 +37,7 @@ const Blog = ({ blog, utilisateurConnecte, onLike, onSuppression }) => {
     : false
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className="blog">
       <div className="blog-resume">
         {blog.title} {blog.author}
         <button onClick={() => setDetailsVisibles(!detailsVisibles)}>
