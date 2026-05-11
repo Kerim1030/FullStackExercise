@@ -27,4 +27,15 @@ const supprimer = async (id) => {
   await axios.delete(`/api/blogs/${id}`, config)
 }
 
-export default { getTous, creer, setJeton, mettreAJour, supprimer }
+const getCommentaires = async (id) => {
+  const reponse = await axios.get(`/api/blogs/${id}/comments`)
+  return reponse.data
+}
+
+const ajouterCommentaire = async (id, comment) => {
+  const config = { headers: { Authorization: jeton } }
+  const reponse = await axios.post(`/api/blogs/${id}/comments`, { comment }, config)
+  return reponse.data
+}
+
+export default { getTous, creer, mettreAJour, supprimer, setJeton, getCommentaires, ajouterCommentaire }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { createSelector } from '@reduxjs/toolkit'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Container, Form, Button, ListGroup } from 'react-bootstrap'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
@@ -63,35 +64,35 @@ const App = () => {
 
   if (utilisateur === null) {
     return (
-      <div>
-        <h2>Se connecter</h2>
+      <Container>
+        <h2 className="mt-3">Se connecter</h2>
         <Notification />
-        <form onSubmit={handleLogin}>
-          <div>
-            username{' '}
-            <input
+        <Form onSubmit={handleLogin}>
+          <Form.Group className="mb-2">
+            <Form.Label>username</Form.Label>
+            <Form.Control
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
-          </div>
-          <div>
-            password{' '}
-            <input
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>password</Form.Label>
+            <Form.Control
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-          </div>
-          <button type="submit">se connecter</button>
-        </form>
-      </div>
+          </Form.Group>
+          <Button type="submit">se connecter</Button>
+        </Form>
+      </Container>
     )
   }
 
   return (
     <Router>
-      <div>
-        <Menu />
+      <Menu />
+      <Container>
         <Notification />
         <Routes>
           <Route
@@ -102,9 +103,11 @@ const App = () => {
                 <Togglable boutonLabel="créer un nouveau blog">
                   <FormulaireBlog onAjout={handleAjoutBlog} />
                 </Togglable>
-                {blogs.map((blog) => (
-                  <Blog key={blog.id} blog={blog} />
-                ))}
+                <ListGroup className="mt-2">
+                  {blogs.map((blog) => (
+                    <Blog key={blog.id} blog={blog} />
+                  ))}
+                </ListGroup>
               </div>
             }
           />
@@ -112,7 +115,7 @@ const App = () => {
           <Route path="/users" element={<ListeUtilisateurs />} />
           <Route path="/users/:id" element={<Utilisateur />} />
         </Routes>
-      </div>
+      </Container>
     </Router>
   )
 }
