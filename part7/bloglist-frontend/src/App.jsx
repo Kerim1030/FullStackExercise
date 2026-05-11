@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { createSelector } from '@reduxjs/toolkit'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import FormulaireBlog from './components/FormulaireBlog'
+import Menu from './components/Menu'
+import ListeUtilisateurs from './components/ListeUtilisateurs'
+import Utilisateur from './components/Utilisateur'
+import VueBlog from './components/VueBlog'
 import { afficherNotification } from './reducers/notificationReducer'
-import { initialiserBlogs, creerBlog, likerBlog, effacerBlog } from './reducers/blogReducer'
-import { initialiserUtilisateur, login, logout } from './reducers/utilisateurReducer'
+import { initialiserBlogs, creerBlog } from './reducers/blogReducer'
+import { initialiserUtilisateur, login } from './reducers/utilisateurReducer'
 
 const selectBlogsTries = createSelector(
   state => state.blogs,
@@ -37,33 +42,23 @@ const App = () => {
       await dispatch(login({ username, password }))
       setUsername('')
       setPassword('')
-    } catch (_erreur) {
+    } catch (_) {
       dispatch(afficherNotification('identifiants incorrects', 5))
     }
-  }
-
-  const handleLogout = () => {
-    dispatch(logout())
   }
 
   const handleAjoutBlog = async (nouveauBlog) => {
     try {
       await dispatch(creerBlog(nouveauBlog, utilisateur))
-      dispatch(afficherNotification(
-        `nouveau blog ajouté : ${nouveauBlog.title} par ${nouveauBlog.author}`,
-        5
-      ))
-    } catch (_erreur) {
+      dispatch(
+        afficherNotification(
+          `nouveau blog ajouté : ${nouveauBlog.title} par ${nouveauBlog.author}`,
+          5
+        )
+      )
+    } catch (_) {
       dispatch(afficherNotification("erreur lors de l'ajout du blog", 5))
     }
-  }
-
-  const handleLike = async (blog) => {
-    await dispatch(likerBlog(blog))
-  }
-
-  const handleSuppression = async (id) => {
-    await dispatch(effacerBlog(id))
   }
 
   if (utilisateur === null) {
@@ -94,28 +89,31 @@ const App = () => {
   }
 
   return (
-    <div>
-      <h2>blogs</h2>
-      <Notification />
-      <p>
-        {utilisateur.name} connecté{' '}
-        <button onClick={handleLogout}>se déconnecter</button>
-      </p>
-
-      <Togglable boutonLabel="créer un nouveau blog">
-        <FormulaireBlog onAjout={handleAjoutBlog} />
-      </Togglable>
-
-      {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          utilisateurConnecte={utilisateur}
-          onLike={handleLike}
-          onSuppression={handleSuppression}
-        />
-      ))}
-    </div>
+    <Router>
+      <div>
+        <Menu />
+        <Notification />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <div>
+                <h2>blogs</h2>
+                <Togglable boutonLabel="créer un nouveau blog">
+                  <FormulaireBlog onAjout={handleAjoutBlog} />
+                </Togglable>
+                {blogs.map((blog) => (
+                  <Blog key={blog.id} blog={blog} />
+                ))}
+              </div>
+            }
+          />
+          <Route path="/blogs/:id" element={<VueBlog />} />
+          <Route path="/users" element={<ListeUtilisateurs />} />
+          <Route path="/users/:id" element={<Utilisateur />} />
+        </Routes>
+      </div>
+    </Router>
   )
 }
 

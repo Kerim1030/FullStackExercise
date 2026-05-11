@@ -41,7 +41,9 @@ export const creerBlog = (nouveauBlog, utilisateur) => {
 export const likerBlog = (blog) => {
   return async (dispatch) => {
     const blogMisAJour = await blogService.mettreAJour(blog.id, {
-      ...blog,
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
       likes: blog.likes + 1,
       user: blog.user._id || blog.user.id || blog.user
     })
